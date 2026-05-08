@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "202556917875",
+    "project_id": "vital-26280",
+    "storage_bucket": "vital-26280.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:202556917875:android:e4a5c53e33da1d17390206",
+        "android_client_info": {
+          "package_name": "com.vital.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJMIChEG2D71CwPVW7W3dA-QK0XH0fQWk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
