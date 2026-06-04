@@ -1,6 +1,8 @@
 package com.vital.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.vital.app.data.model.ProgressDto
@@ -20,7 +22,8 @@ data class ProgressUiState(
     val error: String? = null
 )
 
-class ProgressViewModel : ViewModel() {
+@HiltViewModel
+class ProgressViewModel @Inject constructor() : ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
     private val progressRepository = ProgressRepository()

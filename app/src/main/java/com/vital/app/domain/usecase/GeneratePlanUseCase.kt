@@ -1,18 +1,17 @@
 package com.vital.app.domain.usecase
 
 import com.vital.app.data.model.DailyPlanDto
-import com.vital.app.data.model.ExerciseDto
 import com.vital.app.data.model.FoodDto
 import com.vital.app.data.repository.CatalogRepository
 import com.vital.app.domain.model.UserProfile
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+// Constructor sin valor por defecto: Hilt inyecta CatalogRepository automáticamente
 class GeneratePlanUseCase(
-    private val catalogRepository: CatalogRepository = CatalogRepository()
+    private val catalogRepository: CatalogRepository
 ) {
 
-    // Secuencia de splits semanal
     private val splitGimnasio = listOf("Push", "Pull", "Legs", "Push", "Pull", "Legs", "Descanso")
     private val splitCasa = listOf("Torso", "Pierna", "Torso", "Pierna", "Torso", "Pierna", "Descanso")
 
@@ -40,7 +39,6 @@ class GeneratePlanUseCase(
             val fecha = hoy.plusDays(diaIndex.toLong()).format(formatter)
             val tipoEntrenamiento = split[diaIndex % 7]
 
-            // Ejercicios del día según el tipo de split
             val ejerciciosDelDia = if (tipoEntrenamiento == "Descanso") {
                 emptyList()
             } else {

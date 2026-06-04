@@ -2,6 +2,7 @@ package com.vital.app.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.vital.app.data.model.DailyPlanDto
+import com.vital.app.data.model.FoodDto
 import kotlinx.coroutines.tasks.await
 
 class PlanRepository(
@@ -49,6 +50,36 @@ class PlanRepository(
                 .collection("planes")
                 .document(fecha)
                 .update("completado", true)
+                .await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Actualiza las tres comidas de un día concreto en Firestore.
+     * Se usa tanto por ResetDayMealUseCase (reseteo completo) como por SwapMealUseCase (swap individual).
+     */
+    suspend fun updateDayMeals(
+        uid: String,
+        fecha: String,
+        desayuno: FoodDto,
+        comida: FoodDto,
+        cena: FoodDto
+    ): Result<Unit> {
+        return try {
+            firestore.collection("users")
+                .document(uid)
+                .collection("planes")
+                .document(fecha)
+                .update(
+                    mapOf(
+                        "desayuno" to desayuno,
+                        "comida"   to comida,
+                        "cena"     to cena
+                    )
+                )
                 .await()
             Result.success(Unit)
         } catch (e: Exception) {

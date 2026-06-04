@@ -1,6 +1,8 @@
 package com.vital.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,7 +18,8 @@ data class ExtendedProfileUiState(
     val error: String? = null
 )
 
-class ExtendedProfileViewModel : ViewModel() {
+@HiltViewModel
+class ExtendedProfileViewModel @Inject constructor() : ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
