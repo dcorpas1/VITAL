@@ -9,10 +9,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.vital.app.navigation.Screen
@@ -22,18 +23,15 @@ import com.vital.app.ui.theme.VitalBlack
 import com.vital.app.ui.theme.VitalRed
 import com.vital.app.ui.theme.VitalRedDark
 import com.vital.app.ui.theme.VitalRedLight
-import com.vital.app.ui.theme.VitalGray
 import com.vital.app.ui.theme.VitalGrayMid
 import com.vital.app.ui.theme.VitalGrayLight
 import com.vital.app.ui.theme.VitalWhite
 import com.vital.app.ui.theme.VitalTextSecondary
-import com.vital.app.ui.theme.VitalTextMuted
-import com.vital.app.ui.theme.VitalSuccess
-import com.vital.app.ui.theme.VitalDarkGray
+
 @Composable
 fun ExtendedProfileScreen(
     navController: NavController,
-    viewModel: ExtendedProfileViewModel = viewModel()
+    viewModel: ExtendedProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -61,42 +59,67 @@ fun ExtendedProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0D1B2A))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(VitalRedDark, VitalBlack)
+                )
+            )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(onClick = {
-                    if (step > 0) step-- else navController.popBackStack()
-                }) {
-                    Text("← Volver", color = Color(0xFF4A90D9))
-                }
-                Text("Paso ${step + 1} de $totalSteps", color = Color.Gray, fontSize = 13.sp)
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Text("Personalización avanzada", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            // Header — igual que OnboardingScreen
+            Text(
+                "VITAL",
+                color = VitalWhite,
+                fontSize = 36.sp,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = BarlowCondensed,
+                letterSpacing = 6.sp
+            )
+            Text(
+                "PASO ${step + 1} DE $totalSteps",
+                color = VitalTextSecondary,
+                fontSize = 12.sp,
+                fontFamily = BarlowCondensed,
+                letterSpacing = 2.sp
+            )
 
             LinearProgressIndicator(
                 progress = { (step + 1) / totalSteps.toFloat() },
                 modifier = Modifier.fillMaxWidth(),
-                color = Color(0xFF4A90D9)
+                color = VitalRed,
+                trackColor = VitalGrayMid
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Título de sección
+            Text(
+                "PERSONALIZACIÓN AVANZADA",
+                color = VitalTextSecondary,
+                fontSize = 11.sp,
+                fontFamily = BarlowCondensed,
+                letterSpacing = 2.sp
+            )
+
             when (step) {
                 0 -> {
-                    Text("¿Cuántos días entrenas por semana?", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "¿CUÁNTOS DÍAS ENTRENAS?",
+                        color = VitalWhite,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 1.sp
+                    )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -105,12 +128,19 @@ fun ExtendedProfileScreen(
                             FilterChip(
                                 selected = diasEntrenamiento == dias,
                                 onClick = { diasEntrenamiento = dias },
-                                label = { Text("$dias", fontSize = 13.sp) },
+                                label = {
+                                    Text(
+                                        "$dias DÍAS",
+                                        fontFamily = BarlowCondensed,
+                                        letterSpacing = 1.sp,
+                                        fontSize = 12.sp
+                                    )
+                                },
                                 modifier = Modifier.weight(1f),
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFF4A90D9),
-                                    selectedLabelColor = Color.White,
-                                    labelColor = Color.Gray
+                                    selectedContainerColor = VitalRed,
+                                    selectedLabelColor = VitalWhite,
+                                    labelColor = VitalTextSecondary
                                 )
                             )
                         }
@@ -118,8 +148,21 @@ fun ExtendedProfileScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text("Estilo de entrenamiento (puedes elegir varios)", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text("Selecciona todos los que apliquen", color = Color.Gray, fontSize = 13.sp)
+                    Text(
+                        "ESTILO DE ENTRENAMIENTO",
+                        color = VitalWhite,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        "PUEDES ELEGIR VARIOS",
+                        color = VitalTextSecondary,
+                        fontSize = 11.sp,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 2.sp
+                    )
                     listOf("fuerza", "hipertrofia", "resistencia", "cardio", "funcional").forEach { estilo ->
                         val seleccionado = estilo in estilosEntrenamiento
                         FilterChip(
@@ -130,21 +173,43 @@ fun ExtendedProfileScreen(
                                 else
                                     estilosEntrenamiento + estilo
                             },
-                            label = { Text(estilo.replaceFirstChar { it.uppercase() }) },
+                            label = {
+                                Text(
+                                    estilo.uppercase(),
+                                    fontFamily = BarlowCondensed,
+                                    letterSpacing = 1.sp
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF4A90D9),
-                                selectedLabelColor = Color.White,
-                                labelColor = Color.Gray
+                                selectedContainerColor = VitalRed,
+                                selectedLabelColor = VitalWhite,
+                                labelColor = VitalTextSecondary
                             )
                         )
                     }
                 }
 
                 1 -> {
-                    Text("¿Qué músculos quieres priorizar?", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text("Selecciona todos los que quieras", color = Color.Gray, fontSize = 13.sp)
-                    listOf("pecho", "espalda", "hombros", "brazos", "piernas", "glúteos", "abdomen", "gemelos").forEach { musculo ->
+                    Text(
+                        "MÚSCULOS PRIORITARIOS",
+                        color = VitalWhite,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        "SELECCIONA LOS QUE QUIERAS",
+                        color = VitalTextSecondary,
+                        fontSize = 11.sp,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 2.sp
+                    )
+                    listOf(
+                        "pecho", "espalda", "hombros", "brazos",
+                        "piernas", "glúteos", "abdomen", "gemelos"
+                    ).forEach { musculo ->
                         val seleccionado = musculo in musculosPrioritarios
                         FilterChip(
                             selected = seleccionado,
@@ -154,29 +219,52 @@ fun ExtendedProfileScreen(
                                 else
                                     musculosPrioritarios + musculo
                             },
-                            label = { Text(musculo.replaceFirstChar { it.uppercase() }) },
+                            label = {
+                                Text(
+                                    musculo.uppercase(),
+                                    fontFamily = BarlowCondensed,
+                                    letterSpacing = 1.sp
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF4A90D9),
-                                selectedLabelColor = Color.White,
-                                labelColor = Color.Gray
+                                selectedContainerColor = VitalRed,
+                                selectedLabelColor = VitalWhite,
+                                labelColor = VitalTextSecondary
                             )
                         )
                     }
                 }
 
                 2 -> {
-                    Text("Horas de sueño habituales", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "HORAS DE SUEÑO",
+                        color = VitalWhite,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 1.sp
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         listOf(5, 6, 7, 8, 9).forEach { horas ->
                             FilterChip(
                                 selected = horasSueno == horas,
                                 onClick = { horasSueno = horas },
-                                label = { Text("${horas}h") },
+                                label = {
+                                    Text(
+                                        "${horas}H",
+                                        fontFamily = BarlowCondensed,
+                                        letterSpacing = 1.sp
+                                    )
+                                },
+                                modifier = Modifier.weight(1f),
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFF4A90D9),
-                                    selectedLabelColor = Color.White,
-                                    labelColor = Color.Gray
+                                    selectedContainerColor = VitalRed,
+                                    selectedLabelColor = VitalWhite,
+                                    labelColor = VitalTextSecondary
                                 )
                             )
                         }
@@ -184,7 +272,21 @@ fun ExtendedProfileScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text("Nivel de estrés diario (puedes elegir varios)", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "NIVEL DE ESTRÉS DIARIO",
+                        color = VitalWhite,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        "PUEDES ELEGIR VARIOS",
+                        color = VitalTextSecondary,
+                        fontSize = 11.sp,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 2.sp
+                    )
                     listOf("bajo", "medio", "alto", "variable").forEach { estres ->
                         val seleccionado = estres in nivelesEstres
                         FilterChip(
@@ -195,21 +297,43 @@ fun ExtendedProfileScreen(
                                 else
                                     nivelesEstres + estres
                             },
-                            label = { Text(estres.replaceFirstChar { it.uppercase() }) },
+                            label = {
+                                Text(
+                                    estres.uppercase(),
+                                    fontFamily = BarlowCondensed,
+                                    letterSpacing = 1.sp
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF4A90D9),
-                                selectedLabelColor = Color.White,
-                                labelColor = Color.Gray
+                                selectedContainerColor = VitalRed,
+                                selectedLabelColor = VitalWhite,
+                                labelColor = VitalTextSecondary
                             )
                         )
                     }
                 }
 
                 3 -> {
-                    Text("Alergias e intolerancias", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text("Selecciona las que apliquen (opcional)", color = Color.Gray, fontSize = 13.sp)
-                    listOf("gluten", "lactosa", "huevo", "frutos secos", "pescado", "marisco", "soja", "ninguna").forEach { alergia ->
+                    Text(
+                        "ALERGIAS E INTOLERANCIAS",
+                        color = VitalWhite,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        "SELECCIONA LAS QUE APLIQUEN (OPCIONAL)",
+                        color = VitalTextSecondary,
+                        fontSize = 11.sp,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 2.sp
+                    )
+                    listOf(
+                        "gluten", "lactosa", "huevo", "frutos secos",
+                        "pescado", "marisco", "soja", "ninguna"
+                    ).forEach { alergia ->
                         val seleccionado = alergia in alergias
                         FilterChip(
                             selected = seleccionado,
@@ -219,34 +343,68 @@ fun ExtendedProfileScreen(
                                 else
                                     alergias + alergia
                             },
-                            label = { Text(alergia.replaceFirstChar { it.uppercase() }) },
+                            label = {
+                                Text(
+                                    alergia.uppercase(),
+                                    fontFamily = BarlowCondensed,
+                                    letterSpacing = 1.sp
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF4A90D9),
-                                selectedLabelColor = Color.White,
-                                labelColor = Color.Gray
+                                selectedContainerColor = VitalRed,
+                                selectedLabelColor = VitalWhite,
+                                labelColor = VitalTextSecondary
                             )
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text("Peso objetivo (kg)", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    VitalTextField(value = pesoObjetivo, onValueChange = { pesoObjetivo = it }, label = "Ej: 75")
+                    Text(
+                        "PESO OBJETIVO (KG)",
+                        color = VitalWhite,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 1.sp
+                    )
+                    VitalTextField(
+                        value = pesoObjetivo,
+                        onValueChange = { pesoObjetivo = it },
+                        label = "EJ: 75"
+                    )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text("¿En cuántos meses quieres lograrlo?", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "¿EN CUÁNTOS MESES?",
+                        color = VitalWhite,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 1.sp
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         listOf(1, 2, 3, 6, 12).forEach { meses ->
                             FilterChip(
                                 selected = tiempoObjetivo == meses,
                                 onClick = { tiempoObjetivo = meses },
-                                label = { Text("${meses}m") },
+                                label = {
+                                    Text(
+                                        "${meses}M",
+                                        fontFamily = BarlowCondensed,
+                                        letterSpacing = 1.sp
+                                    )
+                                },
+                                modifier = Modifier.weight(1f),
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFF4A90D9),
-                                    selectedLabelColor = Color.White,
-                                    labelColor = Color.Gray
+                                    selectedContainerColor = VitalRed,
+                                    selectedLabelColor = VitalWhite,
+                                    labelColor = VitalTextSecondary
                                 )
                             )
                         }
@@ -254,9 +412,9 @@ fun ExtendedProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Botones navegación — SIEMPRE visibles
+            // Botones de navegación — mismo estilo que OnboardingScreen
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -265,9 +423,31 @@ fun ExtendedProfileScreen(
                     OutlinedButton(
                         onClick = { step-- },
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF4A90D9))
-                    ) { Text("Atrás", color = Color.White) }
+                        shape = RoundedCornerShape(4.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, VitalRed)
+                    ) {
+                        Text(
+                            "ATRÁS",
+                            color = VitalWhite,
+                            fontFamily = BarlowCondensed,
+                            letterSpacing = 1.sp
+                        )
+                    }
+                } else {
+                    // Botón volver al perfil solo en el primer paso
+                    OutlinedButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(4.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, VitalGrayLight)
+                    ) {
+                        Text(
+                            "CANCELAR",
+                            color = VitalTextSecondary,
+                            fontFamily = BarlowCondensed,
+                            letterSpacing = 1.sp
+                        )
+                    }
                 }
 
                 Button(
@@ -291,25 +471,35 @@ fun ExtendedProfileScreen(
                     modifier = Modifier
                         .weight(1f)
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A90D9)),
+                    shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = VitalRed),
                     enabled = !uiState.isLoading
                 ) {
-                    if (uiState.isLoading)
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
-                    else
-                        Text(
-                            if (step < totalSteps - 1) "Siguiente" else "Finalizar",
-                            fontWeight = FontWeight.Bold
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            color = VitalWhite,
+                            modifier = Modifier.size(20.dp)
                         )
+                    } else {
+                        Text(
+                            if (step < totalSteps - 1) "SIGUIENTE" else "GUARDAR",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontFamily = BarlowCondensed,
+                            letterSpacing = 2.sp
+                        )
+                    }
                 }
             }
 
             uiState.error?.let {
-                Text(it, color = Color.Red, fontSize = 13.sp)
+                Text(
+                    it,
+                    color = VitalRedLight,
+                    fontSize = 13.sp,
+                    fontFamily = BarlowCondensed
+                )
             }
 
-            // Espacio extra al final para que el botón no quede tapado
             Spacer(modifier = Modifier.height(32.dp))
         }
     }

@@ -15,21 +15,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.vital.app.navigation.Screen
 import com.vital.app.ui.theme.*
-import com.vital.app.ui.theme.BarlowCondensed
-import com.vital.app.ui.theme.VitalBlack
-import com.vital.app.ui.theme.VitalRed
-import com.vital.app.ui.theme.VitalRedDark
-import com.vital.app.ui.theme.VitalRedLight
-import com.vital.app.ui.theme.VitalGray
-import com.vital.app.ui.theme.VitalGrayMid
-import com.vital.app.ui.theme.VitalGrayLight
-import com.vital.app.ui.theme.VitalWhite
-import com.vital.app.ui.theme.VitalTextSecondary
-import com.vital.app.ui.theme.VitalTextMuted
-import com.vital.app.ui.theme.VitalSuccess
-import com.vital.app.ui.theme.VitalDarkGray
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -43,9 +32,7 @@ fun LoginScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
-                    colors = listOf(VitalRedDark, VitalBlack, VitalBlack)
-                )
+                Brush.verticalGradient(colors = listOf(VitalRedDark, VitalBlack, VitalBlack))
             )
     ) {
         Column(
@@ -85,15 +72,21 @@ fun LoginScreen(navController: NavController) {
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    errorMsg = "" // Limpia el error al escribir
+                },
                 label = {
                     Text("EMAIL", color = VitalTextSecondary, fontFamily = BarlowCondensed, letterSpacing = 1.sp)
                 },
+                isError = errorMsg.isNotEmpty(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(4.dp),
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = VitalRed,
                     unfocusedBorderColor = VitalGrayLight,
+                    errorBorderColor = VitalRedLight,
                     focusedTextColor = VitalWhite,
                     unfocusedTextColor = VitalWhite
                 )
@@ -103,41 +96,96 @@ fun LoginScreen(navController: NavController) {
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    errorMsg = "" // Limpia el error al escribir
+                },
                 label = {
                     Text("CONTRASEÑA", color = VitalTextSecondary, fontFamily = BarlowCondensed, letterSpacing = 1.sp)
                 },
                 visualTransformation = PasswordVisualTransformation(),
+                isError = errorMsg.isNotEmpty(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(4.dp),
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = VitalRed,
                     unfocusedBorderColor = VitalGrayLight,
+                    errorBorderColor = VitalRedLight,
                     focusedTextColor = VitalWhite,
                     unfocusedTextColor = VitalWhite
                 )
             )
 
+            // Mensaje de error claro y específico
             if (errorMsg.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(errorMsg, color = VitalRedLight, fontSize = 13.sp, fontFamily = BarlowCondensed)
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = VitalRedDark.copy(alpha = 0.4f),
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "⚠",
+                        color = VitalRedLight,
+                        fontSize = 14.sp,
+                        fontFamily = BarlowCondensed
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = errorMsg,
+                        color = VitalRedLight,
+                        fontSize = 13.sp,
+                        fontFamily = BarlowCondensed,
+                        letterSpacing = 0.3.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
+                    // Validación previa — evita llamadas innecesarias a Firebase
+                    when {
+                        email.isBlank() && password.isBlank() -> {
+                            errorMsg = "Rellena el email y la contraseña para continuar."
+                            return@Button
+                        }
+                        email.isBlank() -> {
+                            errorMsg = "El campo email no puede estar vacío."
+                            return@Button
+                        }
+                        password.isBlank() -> {
+                            errorMsg = "El campo contraseña no puede estar vacío."
+                            return@Button
+                        }
+                    }
+
                     loading = true
                     errorMsg = ""
-                    auth.signInWithEmailAndPassword(email, password)
+                    auth.signInWithEmailAndPassword(email.trim(), password)
                         .addOnSuccessListener {
                             navController.navigate(Screen.Home.route) {
                                 popUpTo(Screen.Login.route) { inclusive = true }
                             }
                         }
-                        .addOnFailureListener {
-                            errorMsg = "Email o contraseña incorrectos"
+                        .addOnFailureListener { exception ->
                             loading = false
+                            // Mensaje específico según el tipo de error de Firebase
+                            errorMsg = when (exception) {
+                                is FirebaseAuthInvalidUserException ->
+                                    "No existe ninguna cuenta con este email."
+                                is FirebaseAuthInvalidCredentialsException ->
+                                    "Contraseña incorrecta. Comprueba tus datos e inténtalo de nuevo."
+                                else ->
+                                    "Error al iniciar sesión. Comprueba tu conexión e inténtalo de nuevo."
+                            }
                         }
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),

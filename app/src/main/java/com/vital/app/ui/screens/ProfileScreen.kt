@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.vital.app.navigation.Screen
@@ -21,8 +22,8 @@ import com.vital.app.ui.viewmodel.PlanViewModel
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    viewModel: HomeViewModel = viewModel(),
-    planViewModel: PlanViewModel = viewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    planViewModel: PlanViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

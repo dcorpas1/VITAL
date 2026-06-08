@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.vital.app.data.model.DailyPlanDto
 import com.vital.app.navigation.Screen
@@ -39,8 +39,8 @@ import com.vital.app.ui.theme.VitalDarkGray
 @Composable
 fun HomeScreen(
     navController: NavController,
-    homeViewModel: HomeViewModel = viewModel(),
-    planViewModel: PlanViewModel = viewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    planViewModel: PlanViewModel = hiltViewModel()
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
     val planState by planViewModel.uiState.collectAsState()

@@ -6,9 +6,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.vital.app.data.repository.UserRepositoryImpl
 import com.vital.app.domain.model.UserProfile
 import com.vital.app.domain.usecase.VitalMotorUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class OnboardingUiState(
     val isLoading: Boolean = false,
@@ -16,10 +18,12 @@ data class OnboardingUiState(
     val error: String? = null
 )
 
-class OnboardingViewModel : ViewModel() {
+@HiltViewModel
+class OnboardingViewModel @Inject constructor(
+    private val repository: UserRepositoryImpl,
+    private val vitalMotor: VitalMotorUseCase
+) : ViewModel() {
 
-    private val repository = UserRepositoryImpl()
-    private val vitalMotor = VitalMotorUseCase()
     private val auth = FirebaseAuth.getInstance()
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -52,9 +56,7 @@ class OnboardingViewModel : ViewModel() {
             onboardingCompletado = true
         )
 
-        // El Motor VITAL calcula la nutrición
         val nutrition = vitalMotor.calcular(profile)
-
         _uiState.value = OnboardingUiState(isLoading = true)
 
         viewModelScope.launch {
